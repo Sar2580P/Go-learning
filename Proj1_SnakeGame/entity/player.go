@@ -1,9 +1,12 @@
 package entity
 
 import (
-	"main/common"
-	"main/math"
 	"image/color"
+	"main/common"
+	// "main/entity"
+	"main/math"
+	"slices"
+
 	"github.com/hajimehoshi/ebiten/v2/vector"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -36,7 +39,7 @@ func (p *Player) Update(worldView worldView) bool {
 
 	grow:=false 
 	// eat the food if present
-	for _, entity := range worldView.GetEntities("food"){
+	for _, entity := range worldView.GetEntities(TagFood){
 		food:= entity.(*Food)  // type assertion --> I know this interface value secretly holds a *Food underneath, give me that concrete value
 		
 		if newHead.Equals(food.position){
@@ -46,6 +49,12 @@ func (p *Player) Update(worldView worldView) bool {
 		}
 	}
 	
+
+	for _, entity:= range worldView.GetEntities(TagEnemy){
+		enemy:= entity.(*Enemy)
+		if slices.Contains(enemy.body, newHead){return true}
+	}
+
 	if grow {
 		p.body = append(    // add new head to the snake
 			[]math.Point{newHead},
@@ -76,7 +85,7 @@ func (p *Player) Draw(screen *ebiten.Image){
 }
 
 func (p Player) Tag()string{
-	return "player"
+	return TagPlayer
 }
 
 func (p *Player) SetDirection(dir math.Point){  // to set direction based on key-press

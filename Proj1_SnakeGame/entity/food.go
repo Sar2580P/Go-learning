@@ -42,7 +42,7 @@ func (f *Food) Draw(screen *ebiten.Image){
 
 // Entity interface func
 func (f Food)Tag() string {
-	return "food"
+	return TagFood
 }
 
 func (f Food) Respawn(){    // create a new random food

@@ -31,7 +31,7 @@ type Game struct {
 func (g *Game) Update() error {   // the method of the Game class/struct
 	if g.gameOver { return nil }
 
-	playerRaw, ok := g.world.GetFirstEntity("player") // get the first snake
+	playerRaw, ok := g.world.GetFirstEntity(entity.TagPlayer) // get the first snake
 
 	if !ok{
 		return errors.New("entity player was not found")
@@ -124,11 +124,21 @@ func main(){
 		}, 
 		math.DirUp,
 	))
+
+	world.AddEntity(entity.NewEnemy(
+		math.Point{  // far from player, somewhere top-left
+			X: (common.ScreenWidth/common.GridSize)/3 ,    
+			Y: (common.ScreenHeight/common.GridSize)/3,
+		}, 
+		math.DirRight,
+	))
 	world.AddEntity(entity.NewFood())
 	world.AddEntity(entity.NewFood())
 	world.AddEntity(entity.NewFood())
 	world.AddEntity(entity.NewFood())
 	
+	
+
 	game:= &Game{
 		world: world, 
 		gameOver: false,
