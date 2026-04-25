@@ -1,0 +1,8 @@
+```
+curl localhost:8080/books --include  --header "Content-Type: application/json" -d @body.json --request "POST"
+```
+
+[Gin framework docs](https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbEdzZ2ZBRGxGOS1oMG9zdjdWdHA4UFQ2WUFpQXxBQ3Jtc0ttY1hOOHNDLVlqM3ozS0twNXN1X1hycEFCZ3l0QlVhNmZEZEMyU1hVZ3dBQW1XM256bk1CeDJHMHBhbmVySm42WXRsTnpBY1RJZXBLdHRVejdJRXFITm1SM2VEdm84VDNXUDAwLVpmX3l1V3VmMkJXQQ&q=https%3A%2F%2Fgithub.com%2Fgin-gonic%2Fgin&v=bj77B59nkTQ)
+
+
+[tutorial lecture](https://www.youtube.com/watch?v=bj77B59nkTQ)
