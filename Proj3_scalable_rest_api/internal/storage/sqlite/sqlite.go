@@ -2,9 +2,12 @@ package sqlite
 
 import (
 	"Proj3_scalable_rest_api/internal/config"
-	"database/sql"
 	"Proj3_scalable_rest_api/internal/storage"
-	_ "github.com/mattn/go-sqlite3"   // '_' --> this is not being used directly in the code, but behind the scene used.
+	"Proj3_scalable_rest_api/internal/types"
+	"database/sql"
+	"fmt"
+
+	_ "github.com/mattn/go-sqlite3" // '_' --> this is not being used directly in the code, but behind the scene used.
 )
 
 var _ storage.Storage = (*Sqlite)(nil)  // compile-time assertion to ensure that Sqlite struct implements the Storage interface
@@ -49,4 +52,27 @@ func (s *Sqlite) CreateStudent(name, email string, age int) (int64, error){
 	if err != nil {return 0, err}
 
 	return last_id, nil
+}
+
+func (s *Sqlite) GetStudentById(id int64) (types.Student, error){
+	// prepare the query to get the student by id
+	stmt, err := s.Db.Prepare("SELECT id, name, email, age FROM students WHERE id = ? LIMIT 1")
+	if err != nil {
+		return types.Student{}, err
+	}
+	defer stmt.Close()
+
+	var student types.Student
+
+	// execute the query and scan the result into the student struct
+	err = stmt.QueryRow(id).Scan(&student.Id, &student.Name, &student.Email, &student.Age)
+	if err != nil {
+
+		if err == sql.ErrNoRows {
+			return types.Student{}, fmt.Errorf("student with id %d not found", id)
+		}
+
+		return types.Student{}, fmt.Errorf("query error: %w", err)
+	}
+	return student, nil
 }
