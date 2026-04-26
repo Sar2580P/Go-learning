@@ -2,6 +2,7 @@ package main
 
 import (
 	"Proj3_scalable_rest_api/internal/config"
+	"Proj3_scalable_rest_api/internal/http/handlers/student"
 	"context"
 	"log"
 	"log/slog"
@@ -20,9 +21,7 @@ func main() {
 	// setup router
 	router := http.NewServeMux()
 
-	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request){
-		w.Write([]byte ("welcome to students api"))
-	})
+	router.HandleFunc("POST /api/students", student.New())
 
 	// setup server
 	server := http.Server{
