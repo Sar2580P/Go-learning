@@ -8,3 +8,9 @@
 
 [Sqlite Driver for go](https://github.com/mattn/go-sqlite3)
 * for using the sqlite db 
+
+---
+
+### Detailed Api design
+* use of various packages for auth, notification, api-rate-limit. Natural extension of the current work.
+* [Github]((https://github.com/sikozonpc/GopherSocial))
