@@ -3,6 +3,7 @@ package main
 import (
 	"Proj3_scalable_rest_api/internal/config"
 	"Proj3_scalable_rest_api/internal/http/handlers/student"
+	"Proj3_scalable_rest_api/internal/storage/sqlite"
 	"context"
 	"log"
 	"log/slog"
@@ -17,11 +18,17 @@ func main() {
 	cfg := config.MustLoad()
 
 	// database setup
-	
+	storage, err:= sqlite.New(cfg)
+	if err != nil {
+		log.Fatalf("failed to initialize database: %s", err.Error())
+	}
+
+	slog.Info("storage initialized", slog.String("env", cfg.Env), slog.String("version", "1.0.0"))
+
 	// setup router
 	router := http.NewServeMux()
 
-	router.HandleFunc("POST /api/students", student.New())
+	router.HandleFunc("POST /api/students", student.New(storage))
 
 	// setup server
 	server := http.Server{

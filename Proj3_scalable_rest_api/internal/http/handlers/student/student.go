@@ -10,9 +10,10 @@ import (
 	"log/slog"
 	"net/http"
 	"github.com/go-playground/validator"
+	"Proj3_scalable_rest_api/internal/storage"
 )
 
-func New() http.HandlerFunc{
+func New(storage storage.Storage) http.HandlerFunc{
 	return func(w http.ResponseWriter, r *http.Request){
 
 		slog.Info("creating a student")
@@ -39,6 +40,16 @@ func New() http.HandlerFunc{
 			return
 		}
 
-		response.WriteJson(w, http.StatusCreated, map[string]string{"success": "OK"})
+		last_id, err:= storage.CreateStudent(
+			student.Name, student.Email, student.Age,
+		)
+		slog.Info("student created successfully", slog.String("userId", fmt.Sprint(last_id)))
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+			return
+		}
+
+
+		response.WriteJson(w, http.StatusCreated, map[string]int64{"id": last_id})
 	}
 }

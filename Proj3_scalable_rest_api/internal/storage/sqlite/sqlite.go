@@ -1,0 +1,52 @@
+package sqlite
+
+import (
+	"Proj3_scalable_rest_api/internal/config"
+	"database/sql"
+	"Proj3_scalable_rest_api/internal/storage"
+	_ "github.com/mattn/go-sqlite3"   // '_' --> this is not being used directly in the code, but behind the scene used.
+)
+
+var _ storage.Storage = (*Sqlite)(nil)  // compile-time assertion to ensure that Sqlite struct implements the Storage interface
+
+type Sqlite struct{
+	Db *sql.DB
+}
+
+// constructor
+func New(cfg *config.Config) (*Sqlite, error){
+	db, err:= sql.Open("sqlite3", cfg.StoragePath)
+	if err != nil {
+		return nil, err
+	}
+
+	// creating the students table if it doesn't exist
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS students (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name TEXT ,
+	email TEXT,
+	age INTEGER
+	)`)
+
+	if err!=nil{
+		return nil , err 
+	}
+	return &Sqlite{Db: db}, nil
+}
+
+func (s *Sqlite) CreateStudent(name, email string, age int) (int64, error){
+	stmt, err := s.Db.Prepare("INSERT INTO students (name, email, age) VALUES (?, ?, ?)")
+
+	if err != nil {
+		return 0, err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(name, email, age)  // execute the db insertion
+	if err != nil {return 0, err}
+	
+	last_id, err:= result.LastInsertId()  // get the id of the newly inserted student record
+	if err != nil {return 0, err}
+
+	return last_id, nil
+}
