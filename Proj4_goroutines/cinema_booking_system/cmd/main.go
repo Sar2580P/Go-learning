@@ -1,0 +1,55 @@
+package main
+
+import (
+	"cinema-booking-system/internal/adapters/redis"
+	"cinema-booking-system/internal/booking"
+	"cinema-booking-system/internal/utils"
+	"log"
+	"net/http"
+)
+
+func main() {
+	mux := http.NewServeMux()   // multiplexes  --> https://www.geeksforgeeks.org/computer-networks/types-of-multiplexing-in-data-communications/
+
+	mux.HandleFunc("GET /movies", listMovies)   // api 
+	mux.Handle("GET /", http.FileServer(http.Dir("static")))  // reference to static folder: show index.html on homepage
+
+
+	// handler to connect to underlying components : handler -> svc -> store
+	store:= booking.NewRedisStore(redis.NewClient("localhost:6379"))
+	svc:= booking.NewService(store)
+	bookingHandler:= booking.NewHandler(svc)
+	
+	mux.HandleFunc("GET /movies/{movieID}/seats", bookingHandler.ListSeats)
+
+	if err:= http.ListenAndServe(":8080", mux); err!=nil{
+		log.Fatal(err)
+	}
+
+	mux.HandleFunc("POST /movies/{movieID}/seats/{seatID}/hold", bookingHandler.HoldSeat)
+
+	
+	mux.HandleFunc("PUT /sessions/{sessionID}/confirm", bookingHandler.ConfirmSession)
+	mux.HandleFunc("DELETE /sessions/{sessionID}", bookingHandler.ReleaseSession)
+
+
+
+}
+
+
+// dummy movies data
+var movies=[]movieResponse{
+	{ID: "inception", Title:"Inception", Rows:5, SeatsPerRow:8},
+	{ID:"dune", Title: "Dune: Part Two", Rows:4, SeatsPerRow:6},
+}
+
+func listMovies(w http.ResponseWriter, r *http.Request){
+	utils.WriteJSON(w, http.StatusOK, movies)
+}
+
+type movieResponse struct{
+	ID string   `json:"id"`
+	Title string  `json:"title"`
+	Rows int  `json:"rows"`
+	SeatsPerRow int   `json:"seats_per_row"`
+}
